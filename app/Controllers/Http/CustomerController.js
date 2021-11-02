@@ -65,20 +65,14 @@ class CustomerController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show({ params: { id }, request, response, view }) {
-    const customer = await Customer.find(id);
+  async show({ request, response, params: { id }, view }) {
+    const customer = request.post().customer;
+    debugger;
 
-    if (customer) {
-      response.json({
-        message: "Here is your customer",
-        data: customer,
-      });
-    } else {
-      response.json({
-        message: "There is no customer",
-        id,
-      });
-    }
+    response.json({
+      message: "Here is your customer",
+      data: customer,
+    });
   }
 
   /**
@@ -101,26 +95,15 @@ class CustomerController {
    * @param {Response} ctx.response
    */
   async update({ request, response, params: { id } }) {
-    const customer = await Customer.find(id);
-    console.log(customer);
-    if (customer) {
-      const { name, description } = request.post;
-      (customer.name = name), (customer.description = description);
+    const { name, description, customer } = request.post;
+    (customer.name = name), (customer.description = description);
 
-      await customer.save();
+    await customer.save();
 
-      response.status(200).json({
-        message: "Your Customer has been updated please take a look",
-        data: customer,
-      });
-      console.log(customer);
-    } else {
-      response.status(404).json({
-        message:
-          "There was no customer so we created one, here is your customer",
-        data: customer,
-      });
-    }
+    response.status(200).json({
+      message: "Your Customer has been updated please take a look",
+      data: customer,
+    });
   }
 
   /**
@@ -131,7 +114,15 @@ class CustomerController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy({ params, request, response }) {}
+  async delete({ request, response, params: { id } }) {
+    const customer = request.post().customer;
+    await customer.delete();
+
+    response.status(200).json({
+      message: "Your Customer has been deleted please take a look",
+      id,
+    });
+  }
 }
 
 module.exports = CustomerController;
